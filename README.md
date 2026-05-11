@@ -4,10 +4,17 @@
 To develop a neural network regression model for the given dataset.
 
 ## THEORY
-Explain the problem statement
+The objective of this experiment is to design, implement, and evaluate a Deep Learning–based Neural Network regression model to predict a continuous output variable from a given set of input features.
+
+In many real-world applications—such as house price prediction, temperature forecasting, sales estimation, or demand prediction—the relationship between input variables and the output is non-linear and complex. Traditional statistical models often fail to capture these patterns effectively. Deep Learning models, particularly Artificial Neural Networks (ANNs), are capable of learning such complex relationships through multiple hidden layers and non-linear activation functions.
+
+In this experiment, a dataset containing multiple independent variables (features) and a dependent variable (target) is provided. The task is to preprocess the data, construct a neural network regression architecture, train the model using backpropagation and gradient descent, and evaluate its performance using appropriate regression metrics such as Mean Squared Error (MSE), Mean Absolute Error (MAE), and R² score.
+
+The experiment aims to understand how network architecture, learning rate, number of epochs, and activation functions affect the accuracy of regression predictions and to demonstrate the effectiveness of deep learning in solving regression problems.
 
 ## Neural Network Model
-Include the neural network model diagram.
+<img width="1043" height="671" alt="image" src="https://github.com/user-attachments/assets/4462b8dc-f0af-47f6-b83a-6bd85c193ead" />
+
 
 ## DESIGN STEPS
 ### STEP 1: 
@@ -44,37 +51,114 @@ Use the trained model to predict  for a new input value .
 
 ## PROGRAM
 
-### Name:
+### Name: HARINI S
 
-### Register Number:
+### Register Number: 212223240048
 
 ```python
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
+dataset1 = pd.read_csv('sample.csv')
+X = dataset1[['Input']].values
+y = dataset1[['Output']].values
+
+dataset1.head(5)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=33)
+
+scaler = MinMaxScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
+y_train_tensor = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)
+X_test_tensor = torch.tensor(X_test, dtype=torch.float32)
+y_test_tensor = torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
+
 class NeuralNet(nn.Module):
-    def __init__(self):
+  def __init__(self):
         super().__init__()
-        #Include your code here
+        self.fc1 = nn.Linear(1,8)
+        self.fc2 = nn.Linear(8,10)
+        self.fc3 = nn.Linear(10,1)
+        self.relu = nn.ReLU()
+        self.history = {'loss': []}
 
-
+  def forward(self, x):
+        x = self.relu(self.fc1(x))
+        x = self.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
 
 # Initialize the Model, Loss Function, and Optimizer
+ai_brain = NeuralNet()
+criterion = nn.MSELoss()
+optimizer = optim.RMSprop(ai_brain.parameters(), lr=0.001)
 
-
-
+# Name: DAKSHATA G
+# Register Number: 212223240021
 def train_model(ai_brain, X_train, y_train, criterion, optimizer, epochs=2000):
-    #Include your code here
+    for epoch in range(epochs):
+        optimizer.zero_grad()
+        loss = criterion(ai_brain(X_train), y_train)
+        loss.backward()
+        optimizer.step()
+
+
+        # Append loss inside the loop
+        ai_brain.history['loss'].append(loss.item())
+
+        if epoch % 200 == 0:
+            print(f'Epoch [{epoch}/{epochs}], Loss: {loss.item():.6f}')
+
+
+train_model(ai_brain, X_train_tensor, y_train_tensor, criterion, optimizer)
+
+with torch.no_grad():
+    test_loss = criterion(ai_brain(X_test_tensor), y_test_tensor)
+    print(f'Test Loss: {test_loss.item():.6f}')
+
+loss_df = pd.DataFrame(ai_brain.history)
+
+import matplotlib.pyplot as plt
+loss_df.plot()
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.title("Loss during Training")
+plt.show()
+
+X_n1_1 = torch.tensor([[9]], dtype=torch.float32)
+prediction = ai_brain(torch.tensor(scaler.transform(X_n1_1), dtype=torch.float32)).item()
+print(f'Prediction: {prediction}')
 
 ```
 
 ### Dataset Information
-Include screenshot of the generated data
+<img width="294" height="242" alt="image" src="https://github.com/user-attachments/assets/4bd3772b-2a25-415c-9699-ea445e197b78" />
+
+
 
 ### OUTPUT
+<img width="400" height="218" alt="image" src="https://github.com/user-attachments/assets/c32fb651-bd0a-4a6d-ba10-200c6cf59b47" />
+
+
 
 ### Training Loss Vs Iteration Plot
-Include your plot here
+<img width="768" height="544" alt="image" src="https://github.com/user-attachments/assets/1726b186-d4fd-4d22-9bbf-de43b04a10db" />
+
+
 
 ### New Sample Data Prediction
-Include your sample input and output here
+<img width="309" height="27" alt="image" src="https://github.com/user-attachments/assets/f5a9ae60-6ff0-4215-a861-9ab61d21614a" />
+
+
+
 
 ## RESULT
 Thus, a neural network regression model was successfully developed and trained using PyTorch.
